@@ -1,7 +1,7 @@
 # Trevor Gordon
 
 Senior Technical Customer Success Manager for developer and infrastructure tooling. Previously Coder, Grafana Labs, and F5/NGINX. Based in San Diego.
-I build and operate Alfred, a self-hosted AI assistant running DeepSeek V4.1 Flash-1017 through oMLX/MLX on a 512 GB M3 Ultra Mac Studio, with multi-token prediction and in-memory prefix caching. Hermes handles agent workflows and messaging, while my Gordon Gateway provides model routing, API compatibility, tool-call translation, and tracing. Voice synthesis runs locally with Fish S2-Pro, and Home Assistant connects Alfred to household devices and automations.
+I build and operate Alfred, a self-hosted AI assistant running GLM-5.3 through oMLX/MLX on a 512 GB M3 Ultra Mac Studio, with multi-token prediction and in-memory prefix caching. Hermes handles agent workflows and messaging, while my Gordon Gateway provides model routing, API compatibility, tool-call translation, and tracing. Voice synthesis runs locally with Fish S2-Pro, and Home Assistant connects Alfred to household devices and automations.
 
 The wider infrastructure includes a multi-node NVIDIA DGX Spark k3s cluster and Synology NAS. I’ve built a custom hybrid retrieval pipeline combining LanceDB dense vectors, Tantivy BM25, reciprocal rank fusion, fine-tuned Qwen3 embeddings, and cross-encoder reranking. I use OpenTelemetry, Prometheus, and Grafana for tracing and monitoring, alongside custom benchmarks for model behavior, tool use, and serving performance.
 
