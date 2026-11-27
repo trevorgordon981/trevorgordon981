@@ -21,47 +21,47 @@ flowchart LR
 - **5-minute offline demo & recovery test:**
   ```bash
   git clone https://github.com/trevorgordon981/gordon-gateway.git && cd gordon-gateway
-  pip install -r requirements.txt
+  pip install -r requirements-dev.txt
   python scripts/demo_offline.py
   pytest -q
   ```
-- **Verified offline behavior:** Fragmented LF/CRLF SSE streams preserve content, reasoning, and tool calls; empty or premature EOF emits an explicit stream error instead of `message_stop`; HTTP `400` fails immediately while transport/5xx errors follow configured failover policy (`42` automated tests in CI).
+- **Verified offline behavior:** Fragmented LF/CRLF and gzip/deflate SSE streams preserve content, reasoning, and tool calls; empty streams, premature EOF, and upstream error frames (even when followed by `[DONE]`) emit explicit error termination instead of `message_stop`; HTTP `400` is terminal by default and trust-boundary config rejects ambiguous types (`47` automated tests in CI).
 - **Limits:** Public demo exercises loopback mock backends; live GPU throughput and external OTLP collectors are outside CI scope.
 
 ---
 
 ### 2. [alfred-rag](https://github.com/trevorgordon981/alfred-rag) — Dual-Store Hybrid Retrieval, Index Lifecycle & Unified Eval
 - **Problem:** Hybrid vector + BM25 search stacks quietly drift when documents are deleted or emptied in one store but linger in the other, or when evaluation scripts diverge from the production ranking path.
-- **My contribution vs. upstream:** Built the ingestion reconciliation loop (SHA-256 content tracking, write-ahead ingest journal, paired generation markers across LanceDB and Tantivy), unified `/search` and `/search/debug` execution path, safe loopback-by-default server with bearer/admin auth, and offline CPU eval harness on top of LanceDB, Tantivy, and FastAPI.
+- **My contribution vs. upstream:** Built the ingestion reconciliation loop (SHA-256 content tracking, write-ahead ingest journal, paired generation/chunk-count markers across LanceDB and Tantivy, embedding cardinality validation, legacy v1→v2 schema migration), unified `/search` and `/search/debug` execution path gated fail-closed (`503`) on inconsistent generations, safe loopback-by-default server with bearer/admin auth, and offline CPU eval harness on top of LanceDB, Tantivy, and FastAPI.
 ```mermaid
 flowchart LR
   Docs["Markdown Corpus"] --> Ingest["ingest.py\n(SHA-256 diff + WAL journal)"]
   Ingest --> V["LanceDB (Dense)"]
   Ingest --> B["Tantivy (BM25)"]
-  Q["Query"] --> S["_execute_search()\n(RRF + rerank + doc_id dedupe)"]
+  Q["Query"] --> S["_execute_search()\n(gen-checked RRF + rerank + doc_id dedupe)"]
   V --> S
   B --> S
 ```
 - **5-minute offline demo & recovery test:**
   ```bash
   git clone https://github.com/trevorgordon981/alfred-rag.git && cd alfred-rag
-  pip install lancedb tantivy fastapi uvicorn pydantic httpx
+  pip install -r requirements-offline.txt
   python scripts/offline_demo.py
   python -m unittest discover -s tests -v
   ```
-- **Verified offline behavior:** Runs real CPU LanceDB + Tantivy against bundled synthetic fixtures (`10/10` labeled queries with verbatim span checks and out-of-domain rejection), verifies `/search` == `/search/debug` rank parity, and demonstrates deleting/emptying source files removing stale chunks identically from both stores (`27` automated tests in CI).
+- **Verified offline behavior:** Runs real CPU LanceDB + Tantivy against bundled synthetic fixtures (`10/10` labeled queries with verbatim span checks and out-of-domain rejection), verifies `/search` == `/search/debug` rank parity, fails closed (`503`) if stores diverge mid-ingest, and demonstrates deleting/emptying source files removing stale chunks identically from both stores (`30` automated tests in CI).
 - **Limits:** Offline CI uses deterministic hash embeddings and lexical reranking; real GPU cross-encoder quality depends on hosted weights outside the public repo.
 
 ---
 
 ### 3. [burndvd-makemkv](https://github.com/trevorgordon981/burndvd-makemkv) — Crash-Recoverable Multi-Drive Media Automation
 - **Problem:** Unattended multi-drive Blu-ray/DVD archiving breaks easily on duplicate-label discs, crashes between file publication and state journaling, and concurrent episode numbering across drives.
-- **My contribution vs. upstream:** Built the Python orchestration package (`burndvd`), strict show-intent disc binding for `--watch`, two-phase SHA-256 publish-intent + no-clobber commit journal, multi-drive hardware-pinned `checkrip` dashboard (versioned `--json`), and parallel decode verification wrapping MakeMKV, ffmpeg, and mkvmerge.
+- **My contribution vs. upstream:** Built the Python orchestration package (`burndvd`), strict full-title show-intent disc binding for `--watch`, fail-closed pre-hashed publish-intent + no-clobber commit journal, multi-drive hardware-pinned `checkrip` dashboard (versioned `--json`), and parallel decode verification wrapping MakeMKV, ffmpeg, and mkvmerge.
 ```mermaid
 flowchart LR
   D["Drive 1 / Drive 2"] --> W["Watch / Ripqueue\n(disc-intent guard + lock)"]
   W --> S["Local Staging\n(verify + SHA-256 intent)"]
-  S -->|"atomic no-clobber + fsync journal"| N["Media Library"]
+  S -->|"no-clobber + fsync journal"| N["Media Library"]
   W --> C["checkrip\n(multi-drive dashboard / JSON)"]
 ```
 - **5-minute zero-hardware demo & recovery test:**
@@ -71,13 +71,13 @@ flowchart LR
   python examples/synthetic_demo.py
   pytest -q tests/test_dvd_regressions.py
   ```
-- **Verified offline behavior:** Rejects unrelated discs before staging, replays injected crashes at every publish/journal boundary without clobbering or duplicating episodes, isolates duplicate volume labels across drives, and runs `240+` tests on GitHub macOS CI without optical hardware.
+- **Verified offline behavior:** Rejects unrelated or partial-label discs before staging, replays injected crashes across tested publish/journal boundaries without clobbering or duplicating episodes, isolates duplicate volume labels across drives, and runs `240+` tests on GitHub macOS CI without optical hardware.
 - **Limits:** Real disc mastering quirks, network filesystem latency, and macOS Vision subtitle OCR are verified outside headless CI.
 
 ---
 
 ### Additional Flagship Architecture: [Agentic-Trader](https://github.com/trevorgordon981/Agentic-Trader)
-- Deterministic risk-envelope and protective-stop execution architecture with an offline, broker-free proposal-to-close simulation (`python scripts/demo_offline_simulation.py`) and sanitized 2x leveraged-ETF swing execution infrastructure (`swing_executor/`: pluggable signal interface, fresh-broker cancel-replace stop engine with timeout fail-closed and partial-fill race guards, SQLite WAL capital reservation ledger, paper-to-live graduation gates).
+- Deterministic risk-envelope and protective-stop execution architecture with an offline, broker-free proposal-to-close simulation (`python scripts/demo_offline_simulation.py`) and sanitized 2x leveraged-ETF swing execution infrastructure (`swing_executor/`: pluggable signal interface, account-bound SQLite WAL capital reservation ledger, unified immediate-fill/partial-fill reconciliation, fresh-broker cancel-replace stop engine with timeout fail-closed and partial-fill race guards, paper-to-live graduation gates).
 - **Boundary:** Demonstrates software engineering safeguards and fail-closed controls — **not** proprietary alpha signals or investment performance claims. Proprietary strategy parameters are intentionally omitted.
 
 ---
