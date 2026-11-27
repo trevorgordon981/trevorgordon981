@@ -2,14 +2,14 @@
 
 Senior Technical Customer Success Manager for developer and infrastructure tooling. Previously **Coder**, **Grafana Labs**, and **F5/NGINX**. Based in San Diego.
 
-I design, harden, and operate self-hosted AI serving, retrieval, and automation tooling — focusing on protocol compatibility, failure recovery, and trustworthy offline evaluation. Every featured project below runs locally with synthetic fixtures and zero private credentials or special hardware.
+I design, harden, and operate self-hosted AI serving, retrieval, and automation tooling, focusing on protocol compatibility, failure recovery, and trustworthy offline evaluation. Every featured project below runs locally with synthetic fixtures and zero private credentials or special hardware.
 
 ---
 
 ## Featured Case Studies (5-Minute Offline Demos)
 
-### 1. [gordon-gateway](https://github.com/trevorgordon981/gordon-gateway) — Multi-Protocol LLM Routing, SSE Integrity & Bounded Failover
-- **Problem:** Heterogeneous local (MLX / vLLM) and cloud inference backends diverge on OpenAI vs. Anthropic API formats, CRLF/fragmented SSE framing, reasoning blocks, and error handling — causing silent mid-stream truncation or unintended cloud retries on client `4xx` errors.
+### 1. [gordon-gateway](https://github.com/trevorgordon981/gordon-gateway): Multi-Protocol LLM Routing, SSE Integrity & Bounded Failover
+- **Problem:** Heterogeneous local (MLX / vLLM) and cloud inference backends diverge on OpenAI vs. Anthropic API formats, CRLF/fragmented SSE framing, reasoning blocks, and error handling, causing silent mid-stream truncation or unintended cloud retries on client `4xx` errors.
 - **My contribution vs. upstream:** Built the FastAPI/httpx routing layer, LF/CRLF-safe incremental SSE parser, OpenAI↔Anthropic translation with reasoning/tool parity, trust-boundary failover rules (`4xx` terminal by default; local→external fallback opt-in), and metadata-only OpenTelemetry tracing on top of FastAPI, httpx, and OpenTelemetry SDK.
 ```mermaid
 flowchart LR
@@ -30,7 +30,7 @@ flowchart LR
 
 ---
 
-### 2. [alfred-rag](https://github.com/trevorgordon981/alfred-rag) — Dual-Store Hybrid Retrieval, Index Lifecycle & Unified Eval
+### 2. [alfred-rag](https://github.com/trevorgordon981/alfred-rag): Dual-Store Hybrid Retrieval, Index Lifecycle & Unified Eval
 - **Problem:** Hybrid vector + BM25 search stacks quietly drift when documents are deleted or emptied in one store but linger in the other, or when evaluation scripts diverge from the production ranking path.
 - **My contribution vs. upstream:** Built the ingestion reconciliation loop (SHA-256 content tracking, write-ahead ingest journal, paired generation/chunk-count markers across LanceDB and Tantivy, exclusive per-corpus writer locking across HTTP and CLI, embedding cardinality validation, legacy v1→v2 schema migration), unified `/search` and `/search/debug` execution path gated fail-closed (`503`) on inconsistent generations, safe loopback-by-default server with bearer/admin auth, and offline CPU eval harness on top of LanceDB, Tantivy, and FastAPI.
 ```mermaid
@@ -54,7 +54,7 @@ flowchart LR
 
 ---
 
-### 3. [burndvd-makemkv](https://github.com/trevorgordon981/burndvd-makemkv) — Crash-Recoverable Multi-Drive Media Automation
+### 3. [burndvd-makemkv](https://github.com/trevorgordon981/burndvd-makemkv): Crash-Recoverable Multi-Drive Media Automation
 - **Problem:** Unattended multi-drive Blu-ray/DVD archiving breaks easily on duplicate-label discs, crashes between file publication and state journaling, and concurrent episode numbering across drives.
 - **My contribution vs. upstream:** Built the Python orchestration package (`burndvd`), strict full-title show-intent disc binding for `--watch`, stream-verified SHA-256 publish-intent + no-clobber commit journal, multi-drive hardware-pinned `checkrip` dashboard (versioned `--json`), and parallel decode verification wrapping MakeMKV, ffmpeg, and mkvmerge.
 ```mermaid
@@ -78,7 +78,7 @@ flowchart LR
 
 ### Additional Flagship Architecture: [Agentic-Trader](https://github.com/trevorgordon981/Agentic-Trader)
 - Deterministic risk-envelope and protective-stop execution architecture with an offline, broker-free proposal-to-close simulation (`python scripts/demo_offline_simulation.py`) and sanitized 2x leveraged-ETF swing execution infrastructure (`swing_executor/`: pluggable signal interface, account-bound SQLite WAL capital reservation ledger, unified immediate/partial/deferred-fill reconciliation with idempotent GTC stop arming, fresh-broker cancel-replace stop engine with timeout fail-closed and partial-fill race guards, paper-to-live graduation gates).
-- **Boundary:** Demonstrates software engineering safeguards and fail-closed controls — **not** proprietary alpha signals or investment performance claims. Proprietary strategy parameters are intentionally omitted.
+- **Boundary:** Demonstrates software engineering safeguards and fail-closed controls, **not** proprietary alpha signals or investment performance claims. Proprietary strategy parameters are intentionally omitted.
 
 ---
 
@@ -98,12 +98,11 @@ flowchart LR
 
 | Repository | Focus |
 | --- | --- |
-| [alfred-infra](https://github.com/trevorgordon981/alfred-infra) | Read-only-validated SQLite backups, concurrent-safe generation-unit retention, fail-closed secret scanning, and isolated `age`-encrypted restore drills (verified in CI). |
+| [alfred-infra](https://github.com/trevorgordon981/alfred-infra) | Self-hosted cluster monitoring, custom Apple Silicon M3 serving engine & authenticated LAN proxy, read-only-validated SQLite backups, fail-closed secret scanning, and isolated `age`-encrypted restore drills (verified in CI). |
 | [context-bench](https://github.com/trevorgordon981/context-bench) | Context-window latency & decode throughput benchmark separating buffered completions from streaming decode TPS and tracking observed prompt + output totals (`python context-bench.py --demo`). |
 | [trading-eval-harness](https://github.com/trevorgordon981/trading-eval-harness) | Full-denominator model evaluation harness with strict unique case IDs, failure census, decontamination scanner, calibration gate, and offline demo (`python offline_demo.py`). |
 | [options-alpha-bench](https://github.com/trevorgordon981/options-alpha-bench) | Coverage-gated constant-IV Black-Scholes options replay simulator with trading-session chronology, frozen price-snapshot provenance, and offline demo (`python bench.py demo`). |
 | [alfred-abliterate](https://github.com/trevorgordon981/alfred-abliterate) | Multi-dimensional refusal/coherence/correctness evaluation and SIGKILL-safe, pickle-free provenance-validated activation/direction pipeline with loader revision enforcement. |
 | [stackv2-5b-burst](https://github.com/trevorgordon981/stackv2-5b-burst) | Atomic generation-based checkpoint publication, lock-serialized monotonic `LATEST.json` pointer swaps, fail-closed transfer gating, and deterministic RNG/data-cursor resume contract. |
-| [caymanrepo](https://github.com/trevorgordon981/caymanrepo) | Prototype CLI portfolio tracker with fail-closed all-or-nothing CSV import preview, revision-locked stores, OCC thousandths strike parsing, and cost-basis tests. |
 
 - Writing: [Local AI Stack Saga](https://alooftwaffle.substack.com)
